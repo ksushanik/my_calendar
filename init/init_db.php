@@ -1,6 +1,6 @@
 <?php
 /** @var $conn mysqli */
-require_once 'config/database.php';
+require_once __DIR__ . '/../config/database.php';
 
 // Удаление существующих таблиц, если они есть
 $sqlDrop = "DROP TABLE IF EXISTS `events`";
