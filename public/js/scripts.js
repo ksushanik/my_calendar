@@ -75,8 +75,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Устанавливаем текущую дату в качестве значения по умолчанию для фильтра даты
-    const today = new Date().toISOString().split('T')[0];
-    dateFilter.value = today;
+    dateFilter.value = new Date().toISOString().split('T')[0];
 
     // Обработчик изменения значения даты
     dateFilter.addEventListener('change', performFiltering);
@@ -87,6 +86,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Вызываем фильтрацию по дате при первой загрузке страницы
     performFiltering();
+
+    // Обработчики клика для вкладок фильтрации даты
+    document.querySelectorAll('.date-filter-tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            // Вызываем функцию фильтрации с необходимой информацией
+            const selectedPeriod = this.getAttribute('data-date');
+            performDateFiltering(selectedPeriod);
+            setActiveTab(selectedPeriod);
+        });
+    });
+
+    // Установите начальную активную вкладку
+    setActiveTab('today');
 
 
 });
@@ -109,4 +121,61 @@ function updateTasks(tasks) {
         row.insertCell(4).innerHTML = task.comment;
         // row.insertCell(5).innerHTML = 'Действия'; // Это если вам нужна колонка с действиями
     });
+}
+
+function performDateFiltering(period) {
+    let startDate, endDate;
+    const currentDate = new Date();
+
+    if (period === "today") {
+        startDate = endDate = formatDateToYYYYMMDD(currentDate);
+    } else if (period === "tomorrow") {
+        const tomorrow = new Date(currentDate);
+        tomorrow.setDate(currentDate.getDate() + 1);
+        startDate = endDate = formatDateToYYYYMMDD(tomorrow);
+    } else if (period === "this-week") {
+        const firstDayOfWeek = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay() + (currentDate.getDay() === 0 ? -6:1))); // Понедельник
+        startDate = formatDateToYYYYMMDD(firstDayOfWeek);
+        const lastDayOfWeek = new Date(firstDayOfWeek);
+        lastDayOfWeek.setDate(firstDayOfWeek.getDate() + 6); // Воскресенье
+        endDate = formatDateToYYYYMMDD(lastDayOfWeek);
+    } else if (period === "next-week") {
+        const nextWeek = new Date(currentDate);
+        nextWeek.setDate(currentDate.getDate() + (7 - currentDate.getDay() + 1)); // Следующий понедельник
+        startDate = formatDateToYYYYMMDD(nextWeek);
+        const endNextWeek = new Date(nextWeek);
+        endNextWeek.setDate(nextWeek.getDate() + 6); // В следующее воскресенье
+        endDate = formatDateToYYYYMMDD(endNextWeek);
+    }
+
+    if (startDate && endDate) {
+        const status = document.getElementById('filter-status').value;
+        let url = `/events/filter?status=${encodeURIComponent(status)}&start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`;
+
+        fetch(url, { method: 'GET' })
+            .then(response => response.json())
+            .then(data => {
+                updateTasks(data); // Функция обновления таблицы задач на основе полученных данных
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+            });
+    }
+}
+
+function setActiveTab(selectedPeriod) {
+    document.querySelectorAll('.date-filter-tab').forEach(function(tab) {
+        if (tab.getAttribute('data-date') === selectedPeriod) {
+            tab.classList.add('active');
+        } else {
+            tab.classList.remove('active');
+        }
+    });
+}
+
+function formatDateToYYYYMMDD(date) {
+    const yyyy = date.getFullYear().toString();
+    const mm = (date.getMonth() + 1).toString().padStart(2, '0'); // месяцы с 0
+    const dd = date.getDate().toString().padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
 }

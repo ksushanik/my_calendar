@@ -59,19 +59,28 @@
         </form>
     </section>
     <section class="task-filter">
-        <h2>Фильтр задач</h2>
-        <form id="filter-form">
-            <!-- Выпадающий список для выбора статуса -->
-            <label for="filter-status">Статус:</label>
-            <select id="filter-status" name="status">
-                <option value="">Все</option>
-                <option value="текущее">Текущее</option>
-                <option value="просроченное">Просроченное</option>
-                <option value="выполненное">Выполненное</option>
-            </select>
-            <label for="filter-date">Дата:</label>
-            <input type="date" id="filter-date" name="date" value="">
-        </form>
+        <div class="filters-row">
+            <div class="filter-status">
+                <!-- Выпадающий список для выбора статуса -->
+<!--                <label for="filter-status">Статус:</label>-->
+                <select id="filter-status" name="status">
+                    <option value="">Все</option>
+                    <option value="текущее">Текущее</option>
+                    <option value="просроченное">Просроченное</option>
+                    <option value="выполненное">Выполненное</option>
+                </select>
+            </div>
+            <div class="filter-date">
+<!--                <label for="filter-date">Дата:</label>-->
+                <input type="date" id="filter-date" name="date" value="">
+            </div>
+            <div class="date-filter-tabs">
+                <button class="date-filter-tab" data-date="today">Сегодня</button>
+                <button class="date-filter-tab" data-date="tomorrow">Завтра</button>
+                <button class="date-filter-tab" data-date="this-week">На эту неделю</button>
+                <button class="date-filter-tab" data-date="next-week">На след. неделю</button>
+            </div>
+        </div>
     </section>
     <section class="task-list">
         <h2>Список задач</h2>

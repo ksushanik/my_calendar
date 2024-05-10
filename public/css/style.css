@@ -1,16 +1,4 @@
 /* public/css/style.css */
-button {
-    background-color: #4CAF50; /* Зеленый */
-    border: none;
-    color: white;
-    padding: 15px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    cursor: pointer;
-}
 
 /* Дополнительные стили для таблицы */
 table {
@@ -23,3 +11,40 @@ th, td {
     text-align: left;
     border-bottom: 1px solid #ddd;
 }
+
+#date-filter-tabs {
+    display: flex;
+    justify-content: space-between;
+}
+
+.date-filter-tab {
+    padding: 10px;
+    margin: 5px;
+    background: #ddd;
+    border: 1px solid #ccc;
+    cursor: pointer;
+}
+
+.date-filter-tab.active {
+    background: #aaa;
+}
+
+.task-filter .filters-row {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.task-filter .filters-row > div {
+    margin-right: 10px;
+}
+
+/* Если элементы не вмещаются на маленьких экранах, можно добавить медиа-запрос:
+@media (max-width: 768px) {
+    .task-filter .filters-row {
+        flex-direction: column;
+    }
+}
+*/

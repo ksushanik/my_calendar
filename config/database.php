@@ -1,4 +1,6 @@
 <?php
+date_default_timezone_set('Asia/Irkutsk');
+
 // Данные для подключения к базе данных
 $servername = "localhost";
 $username = "root";

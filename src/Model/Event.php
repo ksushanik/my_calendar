@@ -99,7 +99,10 @@ class Event extends BaseModel {
         }
     }
 
-    public function getFilteredEvents($status, $date) {
+    /**
+     * @throws Exception
+     */
+    public function getFilteredEvents($status, $startDate, $endDate) {
         $queryParams = [];
         $types = '';
         $query = "SELECT * FROM events WHERE 1=1";
@@ -107,13 +110,29 @@ class Event extends BaseModel {
         if (!empty($status)) {
             $query .= " AND status = ?";
             $queryParams[] = $status;
-            $types .= 's'; // 's' - строковый тип
+            $types .= 's';
         }
 
-        if (!empty($date)) {
-            $query .= " AND DATE(start_time) = DATE(?)";
-            $queryParams[] = $date;
-            $types .= 's'; // 's' - строковый тип
+        if (!empty($startDate)) {
+            $query .= " AND start_time >= ?";
+            $queryParams[] = $startDate;
+            $types .= 's';
+        }
+
+        if (!empty($endDate)) {
+            // Создаем объект DateTime из $endDate
+            $endDateTime = new DateTime($endDate);
+
+            // Добавляем один день
+            $endDateTime->modify('+1 day');
+
+            // Форматируем обратно в строку для использования в запросе
+            $endDateWithOneMoreDay = $endDateTime->format('Y-m-d');
+
+            // Используем новую дату в запросе
+            $query .= " AND start_time < ?";  // Условие "<", а не "<=", так как конец периода следующий день 00:00:00
+            $queryParams[] = $endDateWithOneMoreDay;
+            $types .= 's';
         }
 
         $stmt = $this->conn->prepare($query);

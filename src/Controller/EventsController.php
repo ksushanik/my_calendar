@@ -37,9 +37,10 @@ class EventsController {
 
     public function filterEvents() {
         $status = isset($_GET['status']) ? $_GET['status'] : null;
-        $date = isset($_GET['date']) ? $_GET['date'] : null;
+        $start_date = isset($_GET['start_date']) ? $_GET['start_date'] : null;
+        $end_date = isset($_GET['end_date']) ? $_GET['end_date'] : null;
 
-        $events = $this->eventModel->getFilteredEvents($status, $date);
+        $events = $this->eventModel->getFilteredEvents($status, $start_date, $end_date);
 
         header('Content-Type: application/json');
         echo json_encode($events);
