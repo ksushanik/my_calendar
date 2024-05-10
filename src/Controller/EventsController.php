@@ -2,41 +2,46 @@
 // src/Controller/EventsController.php
 require_once __DIR__ . '/../Model/Event.php';
 
-class EventsController
-{
+class EventsController {
     private $eventModel;
 
-    public function __construct()
-    {
+    public function __construct() {
         $this->eventModel = new Event();
     }
 
-    public function index()
-    {
+    public function index() {
         $events = $this->eventModel->getAll();
 
-        // Здесь предполагается, что у вас будет метод для подключения вашего шаблона
+        // Подключение вашего шаблона
         include_once __DIR__ . '/View/home.php';
     }
 
-    public function store()
-    {
-        // Пример получения данных из POST запроса
-        $subject = $_POST['subject'];
-        $type = $_POST['type'];
-        // Добавьте другие параметры
+    public function store() {
+        // Убираем прямую проверку $_POST для упрощения и обобщения примера
+        $data = json_decode(file_get_contents('php://input'), true);
+        $data['status'] = isset($data['status']) ? $data['status'] : 'текущее'; // Если не передано, используется значение по умолчанию
 
-        // Предполагается, что метод create() вашей модели добавляет новое событие в базу данных
-        $result = $this->eventModel->create([
-            'subject' => $subject,
-            'type' => $type,
-            // Добавьте другие параметры
-        ]);
-
-        if ($result) {
-            echo json_encode(['success' => true, 'message' => 'Событие добавлено']);
+        if (!empty($data)) {
+            $result = $this->eventModel->create($data);
+            header('Content-Type: application/json');
+            if ($result) {
+                echo json_encode(['success' => true, 'message' => 'Событие успешно добавлено.']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Ошибка при добавлении события.']);
+            }
         } else {
-            echo json_encode(['success' => false, 'message' => 'Произошла ошибка при добавлении события']);
+            echo json_encode(['success' => false, 'message' => 'Некорректные входные данные.']);
         }
+        exit();
+    }
+
+    public function filterEvents() {
+        $status = isset($_GET['status']) ? $_GET['status'] : null;
+        $date = isset($_GET['date']) ? $_GET['date'] : null;
+
+        $events = $this->eventModel->getFilteredEvents($status, $date);
+
+        header('Content-Type: application/json');
+        echo json_encode($events);
     }
 }

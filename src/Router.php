@@ -1,5 +1,5 @@
 <?php
-// Router.php
+// src/Router.php
 class Router
 {
     private $getRoutes = [];

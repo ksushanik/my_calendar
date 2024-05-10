@@ -39,25 +39,23 @@ class Event extends BaseModel {
     }
 
     public function create($data) {
-        $sql = "INSERT INTO events (subject, type, location, start_time, duration, comment, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        // Предположим, что все ключи в $data совместимы со столбцами вашей таблицы
+        $sql = "INSERT INTO events (subject, type, location, start_time, duration, comment, status) 
+                VALUES (?, ?, ?, ?, ?, ?, ?)";
         if ($stmt = $this->conn->prepare($sql)) {
             $stmt->bind_param("sssssss",
                 $data['subject'], $data['type'], $data['location'],
                 $data['start_time'], $data['duration'], $data['comment'],
                 $data['status']);
             if ($stmt->execute()) {
-                $lastId = $stmt->insert_id;
                 $stmt->close();
-                return $lastId;
+                return true; // Успех
             } else {
                 $stmt->close();
-                // В реальных условиях здесь лучше бросить исключение
-                return false;
+                return false; // Ошибка выполнения
             }
-        } else {
-            // В реальных условиях здесь лучше бросить исключение
-            return false;
         }
+        return false; // Ошибка подготовки
     }
 
     public function update($id, $data) {
@@ -98,6 +96,50 @@ class Event extends BaseModel {
         } else {
             // В реальных условиях здесь лучше бросить исключение
             return false;
+        }
+    }
+
+    public function getFilteredEvents($status, $date) {
+        $queryParams = [];
+        $types = '';
+        $query = "SELECT * FROM events WHERE 1=1";
+
+        if (!empty($status)) {
+            $query .= " AND status = ?";
+            $queryParams[] = $status;
+            $types .= 's'; // 's' - строковый тип
+        }
+
+        if (!empty($date)) {
+            $query .= " AND DATE(start_time) = DATE(?)";
+            $queryParams[] = $date;
+            $types .= 's'; // 's' - строковый тип
+        }
+
+        $stmt = $this->conn->prepare($query);
+
+        if ($stmt) {
+            if (!empty($queryParams)) {
+                $bindNames[] = $types;
+                for ($i = 0; $i < count($queryParams); $i++) {
+                    $bindName = 'bind' . $i;
+                    $$bindName = &$queryParams[$i];
+                    $bindNames[] = &$$bindName;
+                }
+                call_user_func_array([$stmt, 'bind_param'], $bindNames);
+            }
+
+            if ($stmt->execute()) {
+                $result = $stmt->get_result();
+                $events = $result->fetch_all(MYSQLI_ASSOC);
+                $stmt->close();
+                return $events;
+            } else {
+                $stmt->close();  // Закрываем выражение
+                return [];       // Возвращаем пустой результат при ошибке выполнения
+            }
+        } else {
+            return []; // Возвращаем пустой результат при ошибке подготовки запроса
         }
     }
 }
