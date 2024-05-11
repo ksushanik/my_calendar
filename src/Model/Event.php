@@ -130,7 +130,7 @@ class Event extends BaseModel {
             $endDateWithOneMoreDay = $endDateTime->format('Y-m-d');
 
             // Используем новую дату в запросе
-            $query .= " AND start_time < ?";  // Условие "<", а не "<=", так как конец периода следующий день 00:00:00
+            $query .= " AND start_time < ?";
             $queryParams[] = $endDateWithOneMoreDay;
             $types .= 's';
         }
