@@ -6,6 +6,7 @@
     <title>Мой календарь</title>
     <link rel="stylesheet" href="/css/style.css">
     <script src="/js/scripts.js" defer></script>
+    <script src="/js/modal.js" defer></script>
 </head>
 <body>
 <div class="container">
@@ -62,7 +63,7 @@
         <div class="filters-row">
             <div class="filter-status">
                 <!-- Выпадающий список для выбора статуса -->
-<!--                <label for="filter-status">Статус:</label>-->
+                <!--                <label for="filter-status">Статус:</label>-->
                 <select id="filter-status" name="status">
                     <option value="">Все</option>
                     <option value="текущее">Текущее</option>
@@ -71,7 +72,7 @@
                 </select>
             </div>
             <div class="filter-date">
-<!--                <label for="filter-date">Дата:</label>-->
+                <!--                <label for="filter-date">Дата:</label>-->
                 <input type="date" id="filter-date" name="date" value="">
             </div>
             <div class="date-filter-tabs">
@@ -97,14 +98,14 @@
             <tbody>
             <!-- Вывод данных о задачах из базы данных -->
             <?php foreach ($events as $event): ?>
-                <tr>
+                <tr class="task-row" data-id="<?= htmlspecialchars($event['id']) ?>" data-type="<?= htmlspecialchars($event['type']) ?>" data-subject="<?= htmlspecialchars($event['subject']) ?>" data-location="<?= htmlspecialchars($event['location']) ?>" data-start-time="<?= htmlspecialchars($event['start_time']) ?>" data-comment="<?= htmlspecialchars($event['comment']) ?>">
                     <td><?= htmlspecialchars($event['type']) ?></td>
                     <td><?= htmlspecialchars($event['subject']) ?></td>
                     <td><?= htmlspecialchars($event['location']) ?></td>
                     <td><?= htmlspecialchars($event['start_time']) ?></td>
                     <td><?= htmlspecialchars($event['comment']) ?></td>
                     <td>
-                        <!-- Здесь могут быть кнопки редактирования и удаления -->
+                        <!-- Кнопки или иконки для редактирования и удаления, если необходимо -->
                     </td>
                 </tr>
             <?php endforeach; ?>
@@ -112,5 +113,8 @@
         </table>
     </section>
 </div>
+
+<?php include 'task.html'; ?>
+
 </body>
 </html>

@@ -1,3 +1,4 @@
+// public/js/scripts.js
 document.addEventListener('DOMContentLoaded', function () {
     const formEl = document.getElementById('new-task-form');
     const statusSelectEl = document.getElementById('filter-status');
@@ -144,12 +145,28 @@ document.addEventListener('DOMContentLoaded', function () {
 
         tasks.forEach(task => {
             let row = tasksTableEl.insertRow(-1);
-            row.insertCell(0).innerHTML = task.type;
-            row.insertCell(1).innerHTML = task.subject;
-            row.insertCell(2).innerHTML = task.location;
-            row.insertCell(3).innerHTML = new Date(task.start_time).toLocaleString();
-            row.insertCell(4).innerHTML = task.comment;
+
+            // Убедитесь, что все следующие атрибуты data-* существуют и задаются корректно
+            row.setAttribute('data-id', task.id); // Пример значения: task.id
+            row.setAttribute('data-type', task.type);
+            row.setAttribute('data-subject', task.subject);
+            row.setAttribute('data-location', task.location);
+            row.setAttribute('data-start-time', task.start_time);
+            row.setAttribute('data-comment', task.comment);
+
+            // Устанавливаем класс для строки
+            row.className = 'task-row';
+
+            // Заполнение информации о задаче
+            row.insertCell(0).textContent = task.type;
+            row.insertCell(1).textContent = task.subject;
+            row.insertCell(2).textContent = task.location;
+            row.insertCell(3).textContent = new Date(task.start_time).toLocaleString();
+            row.insertCell(4).textContent = task.comment;
         });
+
+        // Не забывайте вызывать эту функцию после добавления всех строк в таблицу
+        setupTaskClickHandlers();
     }
 
     function formatDateToYYYYMMDD(date) {
@@ -159,3 +176,4 @@ document.addEventListener('DOMContentLoaded', function () {
         return `${yyyy}-${mm}-${dd}`;
     }
 });
+
