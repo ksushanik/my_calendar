@@ -61,3 +61,59 @@ window.addEventListener('click', function(event) {
         closeEditModal();
     }
 });
+
+// Функция для сохранения изменений задачи
+editTaskForm.addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    // Получаем данные из формы
+    const taskId = document.getElementById('editTaskId').value;
+    const updatedData = {
+        subject: document.getElementById('editTaskName').value,
+        type: document.getElementById('editTaskType').value,
+        location: document.getElementById('editTaskLocation').value,
+        start_time: document.getElementById('editTaskStartTime').value,
+        comment: document.getElementById('editTaskComment').value,
+        duration: document.getElementById('editTaskDuration').value,
+        status: document.getElementById('editTaskStatus').value
+    };
+
+    // Отправляем запрос на сервер для обновления задачи
+    fetch(`/events/${taskId}/update`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(updatedData)
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка запроса: ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Захватим строки таблицы с dataset ID
+                const rowToUpdate = document.querySelector(`tr[data-id='${taskId}']`);
+
+                if(rowToUpdate) {
+                    rowToUpdate.cells[0].textContent = updatedData.type;
+                    rowToUpdate.cells[1].textContent = updatedData.subject;
+                    rowToUpdate.cells[2].textContent = updatedData.location;
+                    rowToUpdate.cells[3].textContent = new Date(updatedData.start_time).toLocaleString();
+                    rowToUpdate.cells[4].textContent = updatedData.comment;
+                }
+
+                alert('Событие успешно обновлено!');
+                closeEditModal();
+                // Здесь можно добавить код для обновления данных на странице без перезагрузки,
+                // например, обновить текст соответствующей строки таблицы.
+            } else {
+                alert('Ошибка при обновлении события.');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Не удалось обновить событие.');
+        });
+});
+

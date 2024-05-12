@@ -1,3 +1,4 @@
+# public/.htaccess
 # Charset
 AddDefaultCharset UTF-8
 
@@ -8,6 +9,11 @@ php_flag display_errors on
 
 RewriteEngine On
 RewriteBase /
+
+# Обработка запроса на обновление события
+RewriteRule ^events/([0-9]+)/update$ index.php/events/update/$1 [QSA,L]
+
+# Перенаправить все остальные запросы на index.php, если они не соответствуют файлам или директориям
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.php [QSA,L]

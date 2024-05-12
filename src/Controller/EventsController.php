@@ -12,12 +12,11 @@ class EventsController {
     public function index() {
         $events = $this->eventModel->getAll();
 
-        // Подключение вашего шаблона
+        // Подключение шаблона
         include_once __DIR__ . '/View/home.php';
     }
 
     public function store() {
-        // Убираем прямую проверку $_POST для упрощения и обобщения примера
         $data = json_decode(file_get_contents('php://input'), true);
         $data['status'] = isset($data['status']) ? $data['status'] : 'текущее'; // Если не передано, используется значение по умолчанию
 
@@ -28,6 +27,26 @@ class EventsController {
                 echo json_encode(['success' => true, 'message' => 'Событие успешно добавлено.']);
             } else {
                 echo json_encode(['success' => false, 'message' => 'Ошибка при добавлении события.']);
+            }
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Некорректные входные данные.']);
+        }
+        exit();
+    }
+
+    public function update($id) {
+        // Получаем данные из тела запроса
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        // Проверяем, что $data не пустой массив и $id задан
+        if (!empty($data) && isset($id)) {
+            $result = $this->eventModel->update($id, $data);
+
+            header('Content-Type: application/json');
+            if ($result) {
+                echo json_encode(['success' => true, 'message' => 'Событие успешно обновлено.']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Ошибка при обновлении события.']);
             }
         } else {
             echo json_encode(['success' => false, 'message' => 'Некорректные входные данные.']);

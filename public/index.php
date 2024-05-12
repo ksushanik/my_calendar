@@ -19,8 +19,10 @@ $router->post('/events/store', [$eventsController, 'store']);
 // Маршрут для фильтрации событий
 $router->get('/events/filter', [$eventsController, 'filterEvents']);
 
-// Добавьте другие маршруты для редактирования, удаления, просмотра событий и т.д.
+// Маршрут для обновления события
+$router->post('/events/([0-9]+)/update', function ($id) use ($eventsController) {
+    $eventsController->update($id);
+});
 
 // Запускаем маршрутизатор для обработки текущего запроса.
 $router->dispatch();
-
