@@ -36,7 +36,7 @@
             </div>
             <div>
                 <label for="start_time">Дата и время:</label>
-                <input type="datetime-local" id="start_time" name="start_time" required>
+                <input type="date" id="start_time" name="start_time" required>
             </div>
             <div>
                 <label for="duration">Длительность:</label>
