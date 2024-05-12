@@ -5,15 +5,23 @@ class Router
 {
     private $getRoutes = [];
     private $postRoutes = [];
+    private $deleteRoutes = [];
 
     public function get($route, $action)
     {
+        // Преобразовываем параметры в регулярные выражения
+        $route = preg_replace('/\{([a-z]+)\}/', '([^/]+)', $route);
         $this->getRoutes[$route] = $action;
     }
 
     public function post($route, $action)
     {
         $this->postRoutes[$route] = $action;
+    }
+
+    public function delete($route, $action)
+    {
+        $this->deleteRoutes[$route] = $action;
     }
 
     public function dispatch()
@@ -25,6 +33,8 @@ class Router
             $action = $this->matchRoute($requestUri, $this->getRoutes);
         } else if ($requestMethod == 'POST') {
             $action = $this->matchRoute($requestUri, $this->postRoutes);
+        } else if ($requestMethod === 'DELETE') {
+            $action = $this->matchRoute($requestUri, $this->deleteRoutes);
         } else {
             $action = null;
         }

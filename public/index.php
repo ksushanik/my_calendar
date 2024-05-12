@@ -24,5 +24,15 @@ $router->post('/events/([0-9]+)/update', function ($id) use ($eventsController) 
     $eventsController->update($id);
 });
 
+// Маршрут для получения события по id
+$router->get('/events/([0-9]+)', function ($id) use ($eventsController) {
+    $eventsController->show($id);
+});
+
+// Маршрут для удаления события
+$router->delete('/events/([0-9]+)/delete', function ($id) use ($eventsController) {
+    $eventsController->delete($id);
+});
+
 // Запускаем маршрутизатор для обработки текущего запроса.
 $router->dispatch();

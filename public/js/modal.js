@@ -4,17 +4,31 @@ const editTaskForm = document.getElementById('editTaskForm');
 const closeButton = editTaskModal.querySelector('.close');
 
 // Функция для открытия модального окна
-function openEditModal(taskId, taskType, taskSubject, taskLocation, taskStartTime, taskComment) {
-    console.log('Открытие модального окна с данными:', taskId, taskSubject);
-    document.getElementById('editTaskId').value = taskId;
-    document.getElementById('editTaskType').value = taskType;
-    document.getElementById('editTaskName').value = taskSubject;
-    document.getElementById('editTaskLocation').value = taskLocation;
-    document.getElementById('editTaskStartTime').value = taskStartTime;
-    document.getElementById('editTaskComment').value = taskComment;
+function openEditModal(taskId) {
+    // Fetch-запрос для получения актуальных данных задачи
+    fetch(`/events/${taskId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка при получении данных события');
+            }
+            return response.json();
+        })
+        .then(task => {
+            document.getElementById('editTaskId').value = task.id;
+            document.getElementById('editTaskName').value = task.subject;
+            document.getElementById('editTaskType').value = task.type;
+            document.getElementById('editTaskLocation').value = task.location;
+            document.getElementById('editTaskStartTime').value = task.start_time;
+            document.getElementById('editTaskComment').value = task.comment;
+            document.getElementById('editTaskStatus').value = task.status;
 
-    // Отображаем модальное окно
-    editTaskModal.style.display = 'block';
+            // Отображаем модальное окно с актуальными данными
+            editTaskModal.style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Не удалось получить данные события');
+        });
 }
 
 function setupTaskClickHandlers() {
@@ -40,15 +54,6 @@ function setupTaskClickHandlers() {
 function closeEditModal() {
     editTaskModal.style.display = 'none';
 }
-
-// Сохранение изменений задачи
-editTaskForm.addEventListener('submit', function(event) {
-    event.preventDefault();
-    // Здесь код для обработки формы
-    console.log('Форма отправлена!');
-    // Для закрытия модального окна после сохранения
-    closeEditModal();
-});
 
 // Событие для закрытия модального окна при нажатии на кнопку закрыть (X)
 closeButton.addEventListener('click', function() {
@@ -103,7 +108,7 @@ editTaskForm.addEventListener('submit', function(event) {
                     rowToUpdate.cells[4].textContent = updatedData.comment;
                 }
 
-                alert('Событие успешно обновлено!');
+                // alert('Событие успешно обновлено!');
                 closeEditModal();
                 // Здесь можно добавить код для обновления данных на странице без перезагрузки,
                 // например, обновить текст соответствующей строки таблицы.
@@ -115,5 +120,40 @@ editTaskForm.addEventListener('submit', function(event) {
             console.error('Ошибка:', error);
             alert('Не удалось обновить событие.');
         });
+});
+
+const deleteTaskButton = document.getElementById('deleteTaskButton');
+
+deleteTaskButton.addEventListener('click', function() {
+    const taskId = document.getElementById('editTaskId').value;
+    if (confirm('Вы уверены, что хотите удалить это событие?')) {
+        fetch(`/events/${taskId}/delete`, {
+            method: 'DELETE',
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка при удалении события');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Удаляем строку из таблицы
+                    const rowToDelete = document.querySelector(`tr[data-id='${taskId}']`);
+                    if(rowToDelete) {
+                        rowToDelete.remove();
+                    }
+
+                    alert('Событие успешно удалено.');
+                    closeEditModal();
+
+                } else {
+                    alert('Не удалось удалить событие: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert("Ошибка: " + error.message);
+            });
+    }
 });
 

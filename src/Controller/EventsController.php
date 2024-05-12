@@ -64,4 +64,32 @@ class EventsController {
         header('Content-Type: application/json');
         echo json_encode($events);
     }
+
+    public function show($id) {
+        $task = $this->eventModel->findById($id);
+
+        header('Content-Type: application/json');
+        if ($task) {
+            echo json_encode($task);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Событие не найдено.']);
+        }
+        exit();
+    }
+
+    public function delete($id) {
+        if (isset($id)) {
+            $result = $this->eventModel->delete($id);
+
+            header('Content-Type: application/json');
+            if ($result) {
+                echo json_encode(['success' => true, 'message' => 'Событие успешно удалено.']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Ошибка при удалении события.']);
+            }
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Не указан идентификатор события.']);
+        }
+        exit();
+    }
 }

@@ -165,7 +165,6 @@ document.addEventListener('DOMContentLoaded', function () {
             row.insertCell(4).textContent = task.comment;
         });
 
-        // Не забывайте вызывать эту функцию после добавления всех строк в таблицу
         setupTaskClickHandlers();
     }
 
