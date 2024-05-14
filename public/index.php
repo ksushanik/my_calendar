@@ -3,12 +3,21 @@
 
 require_once __DIR__ . '/../src/Router.php';
 require_once __DIR__ . '/../src/Controller/EventsController.php';
+require_once __DIR__ . '/../src/Controller/AuthController.php';
 
 $router = new Router();
 $eventsController = new EventsController();
+$authController = new AuthController();
 
 // Задаем базовый путь для ресурсов, чтобы браузер мог правильно их найти.
 $baseUrl = '/public';
+
+// Маршруты для авторизации и регистрации
+$router->get('/login', [$authController, 'showLoginForm']);
+$router->post('/login', [$authController, 'login']);
+$router->get('/logout', [$authController, 'logout']);
+$router->get('/register', [$authController, 'showRegisterForm']);
+$router->post('/register', [$authController, 'register']);
 
 // Добавляем маршруты в роутер
 $router->get('/', [$eventsController, 'index']);

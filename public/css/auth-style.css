@@ -1,0 +1,55 @@
+/* auth-style.css */
+body {
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    max-width: 400px;
+    margin: auto;
+    padding-top: 50px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 5px;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+input[type="submit"] {
+    padding: 10px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+input[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+.link-to-register {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.link-to-register a {
+    color: #007BFF;
+    text-decoration: none;
+}
+
+.link-to-register a:hover {
+    text-decoration: underline;
+}

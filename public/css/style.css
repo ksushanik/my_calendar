@@ -31,10 +31,12 @@ body {
 }
 
 header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     background-color: var(--header-background);
     color: var(--header-color);
     padding: 20px 0;
-    text-align: center;
 }
 
 /* Стили таблицы */
@@ -189,6 +191,26 @@ select[id='filter-status'] {
     color: var(--button-hover);
 }
 
+.user-logout-block {
+    align-self: flex-end;
+    margin-right: 20px;
+    background-color: var(--header-color);
+    color: var(--text-color);
+    padding: 5px 10px; /* Отступы вокруг текста */
+    border-radius: 5px; /* Скругление углов для эстетики */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Небольшая тень для объема */
+}
+
+.user-logout-block a {
+    color: var(--primary-color);
+    text-decoration: none; /* Удаление подчеркивания ссылок */
+    padding-left: 5px; /* Отступ слева от разделителя */
+}
+
+.user-logout-block a:hover {
+    text-decoration: underline; /* Добавление подчеркивания при наведении */
+}
+
 /* Адаптивный дизайн */
 @media (max-width: 768px) {
     .container {
@@ -213,4 +235,5 @@ select[id='filter-status'] {
         width: 100%;
         margin-left: 0;
     }
+
 }

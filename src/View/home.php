@@ -1,4 +1,3 @@
-<!--src/Controller/View/home.php-->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -11,6 +10,12 @@
 <body>
 <div class="container">
     <header>
+        <div class="user-logout-block">
+            <?php if (isset($_SESSION['user_id']) && isset($_SESSION['username'])): ?>
+                <span>Привет, <?php echo htmlspecialchars($_SESSION['username']); ?></span>
+                | <a href='/logout'>Выйти</a>
+            <?php endif; ?>
+        </div>
         <h1>Мой календарь</h1>
     </header>
 

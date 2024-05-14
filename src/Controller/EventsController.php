@@ -10,10 +10,14 @@ class EventsController {
     }
 
     public function index() {
-        $events = $this->eventModel->getAll();
+        session_start();
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: /login');
+            exit();
+        }
 
-        // Подключение шаблона
-        include_once __DIR__ . '/View/home.php';
+        $events = $this->eventModel->getAll();
+        include_once __DIR__ . '/../View/home.php';
     }
 
     public function store() {
