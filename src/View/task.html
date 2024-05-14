@@ -11,19 +11,30 @@
             </div>
             <div>
                 <label for="editTaskType">Тип задачи:</label>
-                <textarea id="editTaskType" name="type"></textarea>
+                <select id="editTaskType" name="type">
+                    <option value="встреча">Встреча</option>
+                    <option value="звонок">Звонок</option>
+                    <option value="совещание">Совещание</option>
+                    <option value="дело">Дело</option>
+                </select>
             </div>
             <div>
                 <label for="editTaskLocation">Местоположение:</label>
-                <textarea id="editTaskLocation" name="location"></textarea>
+                <input type="text" id="editTaskLocation" name="location">
             </div>
             <div>
                 <label for="editTaskStartTime">Дата и время:</label>
-                <textarea id="editTaskStartTime" name="starttime"></textarea>
+                <input type="datetime-local" id="editTaskStartTime" name="start_time" required>
             </div>
             <div>
                 <label for="editTaskDuration">Длительность:</label>
-                <textarea id="editTaskDuration" name="duration"></textarea>
+                <select id="editTaskDuration" name="duration" required>
+                    <option value="1">1 час</option>
+                    <option value="2">2 часа</option>
+                    <option value="3">3 часа</option>
+                    <option value="4">4 часа</option>
+                    <option value="5">5 часов</option>
+                </select>
             </div>
             <div>
                 <label for="editTaskComment">Комментарий:</label>

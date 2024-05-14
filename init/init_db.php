@@ -27,21 +27,6 @@ function createTable($conn, $tableName, $sqlCreate) {
 dropTable($conn, 'events');
 dropTable($conn, 'users');
 
-// SQL запрос для создания таблицы событий
-$sqlCreateEvents = "CREATE TABLE `events` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `subject` VARCHAR(255) NOT NULL,
-  `type` ENUM('встреча', 'звонок', 'совещание', 'дело') NOT NULL,
-  `location` VARCHAR(255) DEFAULT NULL,
-  `start_time` DATETIME NOT NULL,
-  `duration` TIME NOT NULL,
-  `comment` TEXT,
-  `status` ENUM('текущее', 'просроченное', 'выполненное') NOT NULL DEFAULT 'текущее',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-
-createTable($conn, 'events', $sqlCreateEvents);
-
 // SQL запрос для создания таблицы пользователей
 $sqlCreateUsers = "CREATE TABLE `users` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -52,6 +37,23 @@ $sqlCreateUsers = "CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 
 createTable($conn, 'users', $sqlCreateUsers);
+
+// SQL запрос для создания таблицы событий
+$sqlCreateEvents = "CREATE TABLE `events` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `user_id` INT(11) NOT NULL,
+  `subject` VARCHAR(255) NOT NULL,
+  `type` ENUM('встреча', 'звонок', 'совещание', 'дело') NOT NULL,
+  `location` VARCHAR(255) DEFAULT NULL,
+  `start_time` DATETIME NOT NULL,
+  `duration` TIME NOT NULL,
+  `comment` TEXT,
+  `status` ENUM('текущее', 'просроченное', 'выполненное') NOT NULL DEFAULT 'текущее',
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+
+createTable($conn, 'events', $sqlCreateEvents);
 
 // Закрытие соединения с базой данных
 $conn->close();

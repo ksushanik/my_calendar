@@ -19,7 +19,7 @@
         <h1>Мой календарь</h1>
     </header>
 
-    <section class="new-task">
+    <section class="task-section new-task">
         <h2>Новая задача</h2>
         <form id="new-task-form" method="post">
             <div>
@@ -45,7 +45,13 @@
             </div>
             <div>
                 <label for="duration">Длительность:</label>
-                <input type="text" id="duration" name="duration" required>
+                <select id="duration" name="duration" required>
+                    <option value="1">1 час</option>
+                    <option value="2">2 часа</option>
+                    <option value="3">3 часа</option>
+                    <option value="4">4 часа</option>
+                    <option value="5">5 часов</option>
+                </select>
             </div>
             <div>
                 <label for="comment">Комментарий:</label>
@@ -64,7 +70,7 @@
             </div>
         </form>
     </section>
-    <section class="task-filter">
+    <section class="task-section task-filter">
         <div class="filters-row">
             <div class="filter-status">
                 <!-- Выпадающий список для выбора статуса -->
@@ -88,7 +94,7 @@
             </div>
         </div>
     </section>
-    <section class="task-list">
+    <section class="task-section task-list">
         <h2>Список задач</h2>
         <table id="tasks">
             <thead>

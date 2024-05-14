@@ -6,15 +6,23 @@ require_once 'BaseModel.php';
 
 class Event extends BaseModel {
 
-    public function getAll() {
-        $sql = "SELECT * FROM events";
+    public function getAll($user_id) {
+        // Теперь метод принимает user_id
+        $sql = "SELECT * FROM events WHERE user_id = ?";
         $events = [];
-        if ($result = $this->conn->query($sql)) {
-            while ($row = $result->fetch_assoc()) {
-                $events[] = $row;
+
+        if ($stmt = $this->conn->prepare($sql)) {
+            $stmt->bind_param('i', $user_id); // Привязываем user_id к запросу
+            if ($stmt->execute()) {
+                $result = $stmt->get_result();
+                while ($row = $result->fetch_assoc()) {
+                    $events[] = $row;
+                }
+                $result->free(); // Освободить память.
             }
-            $result->free(); // Освободить память.
+            $stmt->close();
         }
+
         return $events;
     }
 
@@ -39,14 +47,15 @@ class Event extends BaseModel {
     }
 
     public function create($data) {
-        // Предположим, что все ключи в $data совместимы со столбцами вашей таблицы
-        $sql = "INSERT INTO events (subject, type, location, start_time, duration, comment, status) 
-                VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO events (subject, type, location, start_time, duration, comment, status, user_id) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
         if ($stmt = $this->conn->prepare($sql)) {
-            $stmt->bind_param("sssssss",
+            $stmt->bind_param("sssssssi",
                 $data['subject'], $data['type'], $data['location'],
                 $data['start_time'], $data['duration'], $data['comment'],
-                $data['status']);
+                $data['status'], $data['user_id']); // Добавляем user_id в привязку параметров
+
             if ($stmt->execute()) {
                 $stmt->close();
                 return true; // Успех
@@ -58,54 +67,56 @@ class Event extends BaseModel {
         return false; // Ошибка подготовки
     }
 
-    public function update($id, $data) {
-        $sql = "UPDATE events SET subject = ?, type = ?, location = ?, start_time = ?, duration = ?, comment = ?, status = ? WHERE id = ?";
+    public function update($id, $data, $user_id) {
+        // Теперь $user_id передается в качестве параметра
+        $sql = "UPDATE events SET subject = ?, type = ?, location = ?, start_time = ?, duration = ?, comment = ?, status = ? WHERE id = ? AND user_id = ?";
+
         if ($stmt = $this->conn->prepare($sql)) {
-            $stmt->bind_param("sssssssi",
+            $stmt->bind_param("sssssssii",
                 $data['subject'], $data['type'], $data['location'],
                 $data['start_time'], $data['duration'], $data['comment'],
-                $data['status'], $id);
+                $data['status'], $id, $user_id); // Обновляем привязку параметров
+
             if ($stmt->execute()) {
                 $updated = $stmt->affected_rows > 0;
                 $stmt->close();
                 return $updated;
             } else {
                 $stmt->close();
-                // В реальных условиях здесь лучше бросить исключение
-                return false;
+                return false; // Ошибка выполнения
             }
         } else {
-            // В реальных условиях здесь лучше бросить исключение
-            return false;
+            return false; // Ошибка подготовки
         }
     }
 
-    public function delete($id) {
-        $sql = "DELETE FROM events WHERE id = ?";
+    public function delete($id, $user_id) {
+        $sql = "DELETE FROM events WHERE id = ? AND user_id = ?";
+
         if ($stmt = $this->conn->prepare($sql)) {
-            $stmt->bind_param("i", $id);
+            $stmt->bind_param("ii", $id, $user_id); // Обновляем привязку параметров
+
             if ($stmt->execute()) {
                 $deleted = $stmt->affected_rows > 0;
                 $stmt->close();
                 return $deleted;
             } else {
                 $stmt->close();
-                // В реальных условиях здесь лучше бросить исключение
-                return false;
+                return false; // Ошибка выполнения
             }
         } else {
-            // В реальных условиях здесь лучше бросить исключение
-            return false;
+            return false; // Ошибка подготовки
         }
     }
 
     /**
      * @throws Exception
      */
-    public function getFilteredEvents($status, $startDate, $endDate) {
-        $queryParams = [];
-        $types = '';
-        $query = "SELECT * FROM events WHERE 1=1";
+    public function getFilteredEvents($user_id, $status, $startDate, $endDate) {
+        $queryParams = [$user_id];
+        $types = 'i';
+        $query = "SELECT * FROM events WHERE user_id = ?";
+
 
         if (!empty($status)) {
             $query .= " AND status = ?";
@@ -138,15 +149,13 @@ class Event extends BaseModel {
         $stmt = $this->conn->prepare($query);
 
         if ($stmt) {
-            if (!empty($queryParams)) {
-                $bindNames[] = $types;
-                for ($i = 0; $i < count($queryParams); $i++) {
-                    $bindName = 'bind' . $i;
-                    $$bindName = &$queryParams[$i];
-                    $bindNames[] = &$$bindName;
-                }
-                call_user_func_array([$stmt, 'bind_param'], $bindNames);
+            $bindNames[] = $types;
+            for ($i = 0; $i < count($queryParams); $i++) {
+                $bindName = 'bind' . $i;
+                $$bindName = &$queryParams[$i];
+                $bindNames[] = &$$bindName;
             }
+            call_user_func_array([$stmt, 'bind_param'], $bindNames);
 
             if ($stmt->execute()) {
                 $result = $stmt->get_result();
@@ -160,5 +169,19 @@ class Event extends BaseModel {
         } else {
             return []; // Возвращаем пустой результат при ошибке подготовки запроса
         }
+    }
+
+    public function belongsToUser($id, $user_id) {
+        $sql = "SELECT id FROM events WHERE id = ? AND user_id = ?";
+        if ($stmt = $this->conn->prepare($sql)) {
+            $stmt->bind_param("ii", $id, $user_id);
+            if ($stmt->execute()) {
+                $result = $stmt->get_result();
+                if ($result->fetch_assoc()) {
+                    return true; // Событие принадлежит пользователю
+                }
+            }
+        }
+        return false; // Событие не найдено или не принадлежит пользователю
     }
 }

@@ -16,15 +16,18 @@ class EventsController {
             exit();
         }
 
-        $events = $this->eventModel->getAll();
+        $user_id = $_SESSION['user_id'];
+        $events = $this->eventModel->getAll($user_id);
         include_once __DIR__ . '/../View/home.php';
     }
 
     public function store() {
+        session_start();
         $data = json_decode(file_get_contents('php://input'), true);
         $data['status'] = isset($data['status']) ? $data['status'] : 'текущее'; // Если не передано, используется значение по умолчанию
 
-        if (!empty($data)) {
+        if (!empty($data) && isset($_SESSION['user_id'])) {
+            $data['user_id'] = $_SESSION['user_id'];
             $result = $this->eventModel->create($data);
             header('Content-Type: application/json');
             if ($result) {
@@ -39,12 +42,19 @@ class EventsController {
     }
 
     public function update($id) {
-        // Получаем данные из тела запроса
+        session_start();
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Недостаточно прав.']);
+            exit();
+        }
+
+        $user_id = $_SESSION['user_id']; // Получение ID пользователя из сессии
         $data = json_decode(file_get_contents('php://input'), true);
 
-        // Проверяем, что $data не пустой массив и $id задан
-        if (!empty($data) && isset($id)) {
-            $result = $this->eventModel->update($id, $data);
+        // Проверяем, что событие принадлежит текущему пользователю, перед тем как обновлять
+        if (!empty($data) && isset($id) && $this->eventModel->belongsToUser($id, $user_id)) {
+            // Передаем user_id в метод обновления
+            $result = $this->eventModel->update($id, $data, $user_id);
 
             header('Content-Type: application/json');
             if ($result) {
@@ -53,23 +63,40 @@ class EventsController {
                 echo json_encode(['success' => false, 'message' => 'Ошибка при обновлении события.']);
             }
         } else {
-            echo json_encode(['success' => false, 'message' => 'Некорректные входные данные.']);
+            echo json_encode(['success' => false, 'message' => 'Некорректные входные данные или недостаточно прав.']);
         }
         exit();
     }
 
+    /**
+     * @throws Exception
+     */
     public function filterEvents() {
-        $status = isset($_GET['status']) ? $_GET['status'] : null;
-        $start_date = isset($_GET['start_date']) ? $_GET['start_date'] : null;
-        $end_date = isset($_GET['end_date']) ? $_GET['end_date'] : null;
+        session_start();
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Недостаточно прав.']);
+            exit();
+        }
 
-        $events = $this->eventModel->getFilteredEvents($status, $start_date, $end_date);
+        $user_id = $_SESSION['user_id']; // Получаем user_id из сессии
+        $status = isset($_GET['status']) ? $_GET['status'] : null;
+        $startDate = isset($_GET['start_date']) ? $_GET['start_date'] : null;
+        $endDate = isset($_GET['end_date']) ? $_GET['end_date'] : null;
+
+        // Передаем user_id в метод getFilteredEvents
+        $events = $this->eventModel->getFilteredEvents($user_id, $status, $startDate, $endDate);
 
         header('Content-Type: application/json');
         echo json_encode($events);
     }
 
     public function show($id) {
+        session_start();
+        if (!isset($_SESSION['user_id'])) {
+            // У пользователя нет прав на удаление, если он не в сессии
+            echo json_encode(['success' => false, 'message' => 'Недостаточно прав.']);
+            exit();
+        }
         $task = $this->eventModel->findById($id);
 
         header('Content-Type: application/json');
@@ -82,8 +109,15 @@ class EventsController {
     }
 
     public function delete($id) {
+        session_start();
+        if (!isset($_SESSION['user_id'])) {
+            // У пользователя нет прав на удаление, если он не в сессии
+            echo json_encode(['success' => false, 'message' => 'Недостаточно прав.']);
+            exit();
+        }
+        $user_id = $_SESSION['user_id'];
         if (isset($id)) {
-            $result = $this->eventModel->delete($id);
+            $result = $this->eventModel->delete($id, $user_id);
 
             header('Content-Type: application/json');
             if ($result) {
